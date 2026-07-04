@@ -25,3 +25,5 @@ Full-stack finance tracking application built with:
 1. cd frontend
 2. npm install
 3. npm run dev
+
+<img width="419" height="667" alt="image" src="https://github.com/user-attachments/assets/2a20c9c4-db11-46df-9b01-68ceb88bb0da" />
