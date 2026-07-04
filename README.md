@@ -22,6 +22,6 @@ Full-stack finance tracking application built with:
 1.  uvicorn app.main:app --reload
 
 ### Frontend
-- cd frontend
-- npm install
-- npm run dev
+1. cd frontend
+2. npm install
+3. npm run dev
