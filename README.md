@@ -17,9 +17,9 @@ Full-stack finance tracking application built with:
 ## Setup
 
 ### Backend
-- cd backend
-- pip install -r requirements.txt
-- uvicorn app.main:app --reload
+1. cd backend
+1.  pip install -r requirements.txt
+1.  uvicorn app.main:app --reload
 
 ### Frontend
 - cd frontend
