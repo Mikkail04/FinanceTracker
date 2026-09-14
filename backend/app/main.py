@@ -14,6 +14,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "https://finance-tracker-phi-brown.vercel.app",
+        "https://finance-tracker-app-demo.vercel.app",
     ],
     allow_origin_regex=r"https://finance-tracker-[a-z0-9]+-youngkels04-8891s-projects\.vercel\.app",
     allow_credentials=True,
