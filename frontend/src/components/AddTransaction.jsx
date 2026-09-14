@@ -24,6 +24,7 @@ export default function AddTransaction({ onAdd }) {
             setDate("");
 
             console.log("Created:", res.data);
+            alert("Transaction added successfully!");
         } catch (err) {
             console.error(err);
         }

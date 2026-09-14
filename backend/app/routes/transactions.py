@@ -1,14 +1,3 @@
-# from fastapi import APIRouter
-# from app.db import db
-# from app.models import Transaction
-
-# router = APIRouter()
-
-# @router.post("/transactions")
-# def add_transaction(tx: Transaction):
-#     result = db.transactions.insert_one(tx.dict())
-#     return {"id": str(result.inserted_id)}
-
 from fastapi import APIRouter
 from app.db import db
 from app.models import Transaction
@@ -24,15 +13,11 @@ from typing import Optional
 
 router = APIRouter()
 
-# CREATE transaction
-# @router.post("/transactions")
-# def add_transaction(tx: Transaction):
-#     result = db.transactions.insert_one(tx.dict())
-#     return {"id": str(result.inserted_id)}
+
 @router.post("/transactions")
 def add_transaction(tx: Transaction):
     category = categorize_transaction(tx.merchant, tx.amount)
-    
+
     if not category:
         category = "Other"
 
@@ -41,10 +26,7 @@ def add_transaction(tx: Transaction):
 
     result = db.transactions.insert_one(tx_dict)
 
-    return {
-        "id": str(result.inserted_id),
-        "category": category
-    }
+    return {"id": str(result.inserted_id), "category": category}
 
 
 # GET all transactions
@@ -57,6 +39,7 @@ def get_transactions():
 
     return data
 
+
 @router.get("/subscriptions")
 def get_subscriptions():
     transactions = list(db.transactions.find())
@@ -65,6 +48,7 @@ def get_subscriptions():
         tx["_id"] = str(tx["_id"])
 
     return detect_subscriptions(transactions)
+
 
 @router.delete("/transactions/{tx_id}")
 def delete_transaction(tx_id: str):
@@ -75,11 +59,13 @@ def delete_transaction(tx_id: str):
 
     return {"message": "Deleted successfully"}
 
+
 class TransactionUpdate(BaseModel):
     merchant: Optional[str] = None
     amount: Optional[float] = None
     date: Optional[datetime] = None
     category: Optional[str] = None
+
 
 @router.put("/transactions/{tx_id}")
 def update_transaction(tx_id: str, update: TransactionUpdate):
@@ -88,10 +74,7 @@ def update_transaction(tx_id: str, update: TransactionUpdate):
     if not update_data:
         return {"message": "Nothing to update"}
 
-    result = db.transactions.update_one(
-        {"_id": ObjectId(tx_id)},
-        {"$set": update_data}
-    )
+    result = db.transactions.update_one({"_id": ObjectId(tx_id)}, {"$set": update_data})
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Transaction not found")
