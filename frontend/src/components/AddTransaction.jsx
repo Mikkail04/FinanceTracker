@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import api from "../api/api"
 
 export default function AddTransaction({ onAdd }) {
@@ -11,7 +10,7 @@ export default function AddTransaction({ onAdd }) {
         e.preventDefault();
 
         try {
-            const res = await axios.post("/transactions", {
+            const res = await api.post("/transactions", {
                 user_id: "1",
                 merchant: vendor,
                 amount: parseFloat(amount),
