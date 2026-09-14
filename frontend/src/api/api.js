@@ -13,3 +13,5 @@ export const deleteTransaction = (id) =>
 
 export const updateTransaction = (id, data) =>
   API.put(`/transactions/${id}`, data);
+
+export default API;
