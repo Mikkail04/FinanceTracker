@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import api from "../api/api"
 
 export default function AddTransaction({ onAdd }) {
     const [vendor, setVendor] = useState("");
@@ -10,7 +11,7 @@ export default function AddTransaction({ onAdd }) {
         e.preventDefault();
 
         try {
-            const res = await axios.post("http://127.0.0.1:8000/transactions", {
+            const res = await axios.post("/transactions", {
                 user_id: "1",
                 merchant: vendor,
                 amount: parseFloat(amount),
