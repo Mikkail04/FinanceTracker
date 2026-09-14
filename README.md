@@ -1,5 +1,7 @@
 # Finance Tracker
 
+🔗 Live Demo: https://finance-tracker-app-demo.vercel.app/
+
 Full-stack finance tracking application built with:
 
 - FastAPI (Python)
