@@ -11,7 +11,6 @@ export default function AddTransaction({ onAdd }) {
 
         try {
             const res = await api.post("/transactions", {
-                user_id: "1",
                 merchant: vendor,
                 amount: parseFloat(amount),
                 date: new Date(date).toISOString(),

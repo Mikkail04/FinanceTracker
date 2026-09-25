@@ -29,12 +29,14 @@ export default function TransactionsTable({ transactions, onEdit, onDelete }) {
               {new Date(tx.date).toLocaleDateString()}
             </td>
             
-            <button onClick={() => onEdit(tx)}>
-              Edit
-            </button>
-            <button onClick={() => onDelete(tx._id)}>
-              Delete
-            </button>
+            <td>
+              <button onClick={() => onEdit(tx)}>
+                Edit
+              </button>
+              <button onClick={() => onDelete(tx._id)}>
+                Delete
+              </button>
+            </td>
             
           </tr>
         ))}

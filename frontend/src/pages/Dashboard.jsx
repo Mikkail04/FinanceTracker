@@ -6,11 +6,14 @@ import TransactionsTable from "../components/TransactionsTable";
 import AddTransaction from "../components/AddTransaction";
 import { deleteTransaction } from "../api/api";
 import { updateTransaction } from "../api/api";
+import "./Dashboard.css";
+import EditTransactionModal from "../components/EditTransactionModal";
 
-export default function Dashboard() {
+export default function Dashboard({onLogout}) {
     const [summary, setSummary] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [subscriptions, setSubscriptions] = useState([]);
+    const [editingTransaction, setEditingTransaction] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -33,19 +36,33 @@ export default function Dashboard() {
     const [search, setSearch] = useState("");
 
     const handleDelete = async (id) => {
-        await deleteTransaction(id);
-        loadData();
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this transaction?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await deleteTransaction(id);
+            await loadData();
+        } catch (error) {
+            console.error("Delete failed:", error);
+        }
     };
 
     const handleEdit = async (tx) => {
-        const newAmount = prompt("New amount:", tx.amount);
-        const newMerchant = prompt("New vendor:", tx.merchant);
+        setEditingTransaction(tx)
+    };
 
-        await updateTransaction(tx._id, {
-            amount: parseFloat(newAmount),
-            merchant: newMerchant,
+    const handleSaveEdit = async (updatedTx) => {
+        await updateTransaction(updatedTx._id, {
+            merchant: updatedTx.merchant,
+            amount: updatedTx.amount,
         });
 
+        setEditingTransaction(null);
         loadData();
     };
 
@@ -59,15 +76,14 @@ export default function Dashboard() {
     );
 
     return (
-        <div style={{ padding: "20px" }}>
+        <div className="dashboard">
             <h1>Finance Dashboard</h1>
 
-            <div
-                style={{
-                    border: "1px solid #ccc",
-                    padding: "20px",
-                    marginBottom: "20px",
-                }}>
+            <button className="logout-btn" onClick={onLogout}>
+                Logout
+            </button>
+
+            <div className="summary-card">
                 <h2>Total Spent</h2>
                 <h1>${summary.total_spent}</h1>
             </div>
@@ -88,15 +104,11 @@ export default function Dashboard() {
             ))}
 
             <input
+                className="search-box"
                 type="text"
                 placeholder="Search Vendor..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{
-                    padding: "10px",
-                    marginBottom: "15px",
-                    width: "300px",
-                }}
             />
 
             <h2>Transactions</h2>
@@ -104,6 +116,12 @@ export default function Dashboard() {
                 transactions={filteredTransactions}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
+            />
+
+            <EditTransactionModal
+                transaction={editingTransaction}
+                onSave={handleSaveEdit}
+                onClose={() => setEditingTransaction(null)}
             />
         </div>
     );

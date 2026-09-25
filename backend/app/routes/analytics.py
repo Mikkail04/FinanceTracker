@@ -1,14 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.db import db
 from datetime import datetime
 from collections import defaultdict
+from app.auth_utils import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/analytics/summary")
-def get_summary():
-    transactions = list(db.transactions.find())
+def get_summary(user_id: str = Depends(get_current_user)):
+    transactions = list(db.transactions.find({"user_id": user_id}))
 
     total_spent = 0
     category_totals = defaultdict(float)
@@ -34,5 +35,5 @@ def get_summary():
     return {
         "total_spent": round(total_spent, 2),
         "category_breakdown": dict(category_totals),
-        "monthly_breakdown": dict(monthly_totals)
+        "monthly_breakdown": dict(monthly_totals),
     }

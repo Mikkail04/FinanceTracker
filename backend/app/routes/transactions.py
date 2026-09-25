@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from app.db import db
 from app.models import Transaction
 from bson import ObjectId
@@ -10,12 +10,13 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from typing import Optional
+from app.auth_utils import get_current_user
 
 router = APIRouter()
 
 
 @router.post("/transactions")
-def add_transaction(tx: Transaction):
+def add_transaction(tx: Transaction, user_id: str = Depends(get_current_user)):
     category = categorize_transaction(tx.merchant, tx.amount)
 
     if not category:
@@ -23,6 +24,7 @@ def add_transaction(tx: Transaction):
 
     tx_dict = tx.dict()
     tx_dict["category"] = category
+    tx_dict["user_id"] = user_id
 
     result = db.transactions.insert_one(tx_dict)
 
@@ -31,8 +33,8 @@ def add_transaction(tx: Transaction):
 
 # GET all transactions
 @router.get("/transactions")
-def get_transactions():
-    data = list(db.transactions.find())
+def get_transactions(user_id: str = Depends(get_current_user)):
+    data = list(db.transactions.find({"user_id": user_id}))
 
     for item in data:
         item["_id"] = str(item["_id"])
@@ -41,8 +43,8 @@ def get_transactions():
 
 
 @router.get("/subscriptions")
-def get_subscriptions():
-    transactions = list(db.transactions.find())
+def get_subscriptions(user_id: str = Depends(get_current_user)):
+    transactions = list(db.transactions.find({"user_id": user_id}))
 
     for tx in transactions:
         tx["_id"] = str(tx["_id"])
@@ -51,8 +53,8 @@ def get_subscriptions():
 
 
 @router.delete("/transactions/{tx_id}")
-def delete_transaction(tx_id: str):
-    result = db.transactions.delete_one({"_id": ObjectId(tx_id)})
+def delete_transaction(tx_id: str, user_id: str = Depends(get_current_user)):
+    result = db.transactions.delete_one({"_id": ObjectId(tx_id), "user_id": user_id})
 
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Transaction not found")
@@ -68,13 +70,17 @@ class TransactionUpdate(BaseModel):
 
 
 @router.put("/transactions/{tx_id}")
-def update_transaction(tx_id: str, update: TransactionUpdate):
+def update_transaction(
+    tx_id: str, update: TransactionUpdate, user_id: str = Depends(get_current_user)
+):
     update_data = {k: v for k, v in update.dict().items() if v is not None}
 
     if not update_data:
         return {"message": "Nothing to update"}
 
-    result = db.transactions.update_one({"_id": ObjectId(tx_id)}, {"$set": update_data})
+    result = db.transactions.update_one(
+        {"_id": ObjectId(tx_id), "user_id": user_id}, {"$set": update_data}
+    )
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Transaction not found")

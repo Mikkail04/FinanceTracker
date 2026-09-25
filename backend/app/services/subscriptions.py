@@ -1,56 +1,6 @@
-# from collections import defaultdict
-# from datetime import datetime
-
-# def detect_subscriptions(transactions):
-#     grouped = defaultdict(list)
-
-#     # Group by merchant
-#     for tx in transactions:
-#         grouped[tx["merchant"].lower()].append(tx)
-
-#     subscriptions = []
-
-#     for merchant, txs in grouped.items():
-#         if len(txs) < 2:
-#             continue
-
-#         # Sort by date
-#         dates = sorted([datetime.fromisoformat(tx["date"]) for tx in txs])
-
-#         # Check consistency in amount
-#         amounts = [tx["amount"] for tx in txs]
-#         avg_amount = sum(amounts) / len(amounts)
-
-#         # Simple heuristic: repeated similar charges
-#         consistent = all(abs(a - avg_amount) < 0.5 for a in amounts)
-
-#         if not consistent:
-#             continue
-
-#         # Estimate frequency (very simple)
-#         if len(dates) >= 2:
-#             diff_days = (dates[-1] - dates[0]).days
-#             avg_gap = diff_days / (len(dates) - 1)
-
-#             if 25 <= avg_gap <= 35:
-#                 frequency = "monthly"
-#             elif 6 <= avg_gap <= 8:
-#                 frequency = "weekly"
-#             else:
-#                 frequency = "irregular"
-#         else:
-#             frequency = "unknown"
-
-#         subscriptions.append({
-#             "merchant": merchant,
-#             "avg_amount": round(avg_amount, 2),
-#             "frequency": frequency,
-#             "count": len(txs)
-#         })
-
-#     return subscriptions
 from collections import defaultdict
 from datetime import datetime
+
 
 def normalize_date(value):
     """
@@ -94,15 +44,12 @@ def detect_subscriptions(transactions):
             continue
 
         avg_amount = sum(amounts) / len(amounts)
-        
+
         # sort dates
         dates.sort()
 
         # compute gaps between consecutive transactions
-        gaps = [
-            (dates[i] - dates[i - 1]).days
-            for i in range(1, len(dates))
-        ]
+        gaps = [(dates[i] - dates[i - 1]).days for i in range(1, len(dates))]
 
         if len(gaps) == 0:
             frequency = "unknown"
@@ -116,11 +63,13 @@ def detect_subscriptions(transactions):
         else:
             frequency = "irregular"
 
-        subscriptions.append({
-            "merchant": merchant,
-            "avg_amount": round(avg_amount, 2),
-            "frequency": frequency,
-            "count": len(txs)
-        })
+        subscriptions.append(
+            {
+                "merchant": merchant,
+                "avg_amount": round(avg_amount, 2),
+                "frequency": frequency,
+                "count": len(txs),
+            }
+        )
 
     return subscriptions
