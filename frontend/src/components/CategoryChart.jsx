@@ -7,6 +7,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const COLORS = [
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#06B6D4",
+];
+
 export default function CategoryChart({ data }) {
   const chartData = Object.entries(data).map(([name, value]) => ({
     name,
@@ -25,7 +34,8 @@ export default function CategoryChart({ data }) {
             label
           >
             {chartData.map((_, index) => (
-              <Cell key={index} />
+              <Cell key={index} 
+              fill={COLORS[index % COLORS.length]}/>
             ))}
           </Pie>
 

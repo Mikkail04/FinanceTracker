@@ -65,7 +65,7 @@ def detect_subscriptions(transactions):
 
         subscriptions.append(
             {
-                "merchant": merchant,
+                "merchant": merchant.title(),
                 "avg_amount": round(avg_amount, 2),
                 "frequency": frequency,
                 "count": len(txs),
