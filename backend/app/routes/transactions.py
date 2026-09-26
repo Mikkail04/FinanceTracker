@@ -4,12 +4,9 @@ from app.models import Transaction
 from bson import ObjectId
 from app.services.categorizer import categorize_transaction
 from app.services.subscriptions import detect_subscriptions
-from bson import ObjectId
-from fastapi import HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from typing import Optional
 from app.auth_utils import get_current_user
 
 router = APIRouter()
@@ -17,7 +14,11 @@ router = APIRouter()
 
 @router.post("/transactions")
 def add_transaction(tx: Transaction, user_id: str = Depends(get_current_user)):
-    category = categorize_transaction(tx.merchant, tx.amount)
+
+    category = tx.category
+
+    if not category:
+        category = categorize_transaction(tx.merchant, tx.amount)
 
     if not category:
         category = "Other"
