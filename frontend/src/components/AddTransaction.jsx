@@ -8,43 +8,54 @@ export default function AddTransaction({ onAdd }) {
     const [dateInput, setDateInput] = useState("");
     const [datePicker, setDatePicker] = useState("");
     const [dateError, setDateError] = useState("");
+    const [formError, setFormError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setDateError("");
+        setFormError("");
+
+        if (!vendor.trim() || !amount) {
+            setFormError("Please fill out all fields.");
+            return;
+        }
 
         try {
             let chosenDate;
 
-if (dateInput) {
-    const parts = dateInput.split("/");
+            if (datePicker) {
+                chosenDate = new Date(datePicker).toISOString();
+            }
 
-    if (parts.length !== 3) {
-        setDateError("Please enter the date as MM/DD/YYYY.");
-        return;
-    }
+            else if (dateInput) {
+                const parts = dateInput.split("/");
 
-    const [month, day, year] = parts.map(Number);
+                if (parts.length !== 3) {
+                    setDateError("Please enter the date as MM/DD/YYYY.");
+                    return;
+                }
 
-    const testDate = new Date(year, month - 1, day);
+                const [month, day, year] = parts.map(Number);
 
-    if (
-        isNaN(testDate.getTime()) ||
-        testDate.getFullYear() !== year ||
-        testDate.getMonth() !== month - 1 ||
-        testDate.getDate() !== day
-    ) {
-        setDateError("Please enter a valid date.");
-        return;
-    }
+                const testDate = new Date(year, month - 1, day);
 
-    chosenDate = testDate.toISOString();
-} else if (datePicker) {
-    chosenDate = new Date(datePicker).toISOString();
-} else {
-    setDateError("Please enter a date.");
-    return;
-}
+                if (
+                    isNaN(testDate.getTime()) ||
+                    testDate.getFullYear() !== year ||
+                    testDate.getMonth() !== month - 1 ||
+                    testDate.getDate() !== day
+                ) {
+                    setDateError("Please enter a valid date.");
+                    return;
+                }
+
+                chosenDate = testDate.toISOString();
+            }
+
+            else {
+                setDateError("Please enter a date.");
+                return;
+            }
 
             const res = await api.post("/transactions", {
                 merchant: vendor,
@@ -91,50 +102,59 @@ if (dateInput) {
 
             <label>Date</label>
 
-<div
-    style={{
-        display: "flex",
-        gap: "10px",
-        width: "100%",
-    }}
->
-    <input
-        type="text"
-        placeholder="MM/DD/YYYY"
-        value={dateInput}
-        onChange={(e) => {
-            setDateInput(e.target.value) 
-            setDatePicker("")}
-        }
-        style={{
-            ...inputStyle,
-            flex: 1,
-            width: "100%",
-            boxSizing: "border-box",
-        }}
-    />
+            <div
+                style={{
+                    display: "flex",
+                    gap: "10px",
+                    width: "100%",
+                }}
+            >
+                <input
+                    type="text"
+                    placeholder="MM/DD/YYYY"
+                    value={dateInput}
+                    onChange={(e) => {
+                        setDateInput(e.target.value);
 
-    <input
-        type="date"
-        value={datePicker}
-        onChange={(e) => {
-            setDatePicker(e.target.value);
-            setDateInput(e.target.value);
-        }}
-        style={{
-            ...inputStyle,
-            flex: 1,
-            width: "100%",
-            boxSizing: "border-box",
-        }}
-    />
-</div>
+                        if (e.target.value === "") {
+                            setDatePicker("");
+                        }
+                    }}
 
-{dateError && (
-    <p style={{ color: "#ef4444", margin: "0" }}>
-        {dateError}
-    </p>
-)}
+                    style={{
+                        ...inputStyle,
+                        flex: 1,
+                        width: "100%",
+                        boxSizing: "border-box",
+                    }}
+                />
+
+                <input
+                    type="date"
+                    value={datePicker}
+                    onChange={(e) => {
+                        const value = e.target.value;
+
+                        setDatePicker(value);
+
+                        const [year, month, day] = value.split("-");
+
+                        setDateInput(`${month}/${day}/${year}`);
+                    }}
+                    style={{
+                        ...inputStyle,
+                        flex: 1,
+                        width: "100%",
+                        boxSizing: "border-box",
+                    }}
+                />
+            </div>
+
+            {dateError && (
+                <p style={{ color: "#ef4444", margin: "0" }}>
+                    {dateError}
+                </p>
+            )}
 
             <label> Category </label>
             <select
@@ -151,6 +171,12 @@ if (dateInput) {
                 <option value="Health">Health</option>
                 <option value="Other">Other</option>
             </select>
+
+            {formError && (
+                <p style={{ color: "#ef4444", margin: "0" }}>
+                    {formError}
+                </p>
+            )}
 
             <button type="submit" style={buttonStyle}>
                 Add Transaction
@@ -170,6 +196,8 @@ const formStyle = {
 
 const inputStyle = {
     padding: "10px",
+    width: "100%",
+    boxSizing: "border-box",
 };
 
 const buttonStyle = {
