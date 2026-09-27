@@ -4,6 +4,7 @@ from app.models import UserCreate, UserLogin
 from passlib.context import CryptContext
 from jose import jwt
 import os
+from datetime import datetime, UTC
 
 router = APIRouter()
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -22,7 +23,12 @@ def register(user: UserCreate):
     hashed_password = pwd_context.hash(user.password)
 
     result = db.users.insert_one(
-        {"email": user.email, "password_hash": hashed_password}
+        {
+            "email": user.email,
+            "password_hash": hashed_password,
+            "last_login": datetime.now(UTC),
+            "is_admin": False,
+        }
     )
 
     token = jwt.encode(
@@ -51,6 +57,10 @@ def login(user: UserLogin):
 
     if not password_correct:
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    db.users.update_one(
+        {"_id": existing_user["_id"]}, {"$set": {"last_login": datetime.now(UTC)}}
+    )
 
     token = jwt.encode(
         {"user_id": str(existing_user["_id"]), "email": existing_user["email"]},

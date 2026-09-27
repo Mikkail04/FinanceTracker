@@ -3,12 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.transactions import router as tx_router
 from app.routes.analytics import router as analytics_router
 from app.routes.auth import router as auth_router
+from app.routes.admin import router as admin_router
+from app.routes.admin import router as admin_router
 
 app = FastAPI()
 
 app.include_router(tx_router)
 app.include_router(analytics_router)
 app.include_router(auth_router)
+app.include_router(admin_router)
 
 app.add_middleware(
     CORSMiddleware,
